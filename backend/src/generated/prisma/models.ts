@@ -8,4 +8,12 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/User.js'
+export type * from './models/Organization.js'
+export type * from './models/OrganizationMember.js'
+export type * from './models/Event.js'
+export type * from './models/Session.js'
+export type * from './models/Speaker.js'
+export type * from './models/SessionSpeaker.js'
+export type * from './models/AuthSession.js'
 export type * from './commonInputTypes.js'

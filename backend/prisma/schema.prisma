@@ -6,3 +6,116 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  firstName    String?
+  lastName     String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships  OrganizationMember[]
+  authSessions AuthSession[]
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members OrganizationMember[]
+  events  Event[]
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  EDITOR
+  ANALYST
+}
+
+model OrganizationMember {
+  id             String           @id @default(uuid())
+  userId         String
+  organizationId String
+  role           OrganizationRole
+  createdAt      DateTime         @default(now())
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model Event {
+  id             String @id @default(uuid())
+  organizationId String
+
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+
+  status    String   @default("DRAFT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  sessions     Session[]
+}
+
+model Session {
+  id      String @id @default(uuid())
+  eventId String
+
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event    Event            @relation(fields: [eventId], references: [id])
+  speakers SessionSpeaker[]
+}
+
+model Speaker {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  jobTitle  String?
+  company   String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions SessionSpeaker[]
+}
+
+model SessionSpeaker {
+  sessionId String
+  speakerId String
+
+  session Session @relation(fields: [sessionId], references: [id])
+  speaker Speaker @relation(fields: [speakerId], references: [id])
+
+  @@id([sessionId, speakerId])
+}
+
+model AuthSession {
+  id               String   @id @default(uuid())
+  userId           String
+  refreshTokenHash String
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}

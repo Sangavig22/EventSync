@@ -79,3 +79,8 @@ export type SessionSpeaker = Prisma.SessionSpeakerModel
  * 
  */
 export type AuthSession = Prisma.AuthSessionModel
+/**
+ * Model Registration
+ * 
+ */
+export type Registration = Prisma.RegistrationModel

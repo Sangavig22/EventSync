@@ -8,6 +8,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { UsersModule } from './users/users.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { SpeakersModule } from './speakers/speakers.module';
+import { RegistrationsModule } from './registrations/registrations.module';
 import { AuthModule } from './auth/auth.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
@@ -27,6 +28,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     UsersModule,
     SessionsModule,
     SpeakersModule,
+    RegistrationsModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -14,4 +14,8 @@ export class CreateSessionDto {
 
   @IsDateString()
   endTime: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
 }

@@ -22,4 +22,8 @@ export class UpdateSessionDto {
   @IsOptional()
   @IsDateString()
   endTime?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
 }

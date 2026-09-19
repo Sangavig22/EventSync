@@ -19,6 +19,8 @@ model User {
   memberships  OrganizationMember[]
   authSessions AuthSession[]
   registrations Registration[]
+  orders Order[]
+
 }
 
 model Organization {
@@ -58,6 +60,7 @@ model Event {
 
   title       String
   description String?
+  location    String?
   startDate   DateTime
   endDate     DateTime
 
@@ -69,6 +72,9 @@ model Event {
   organization Organization @relation(fields: [organizationId], references: [id])
   sessions     Session[]
   registrations Registration[]
+
+  @@index([status, startDate])
+  ticketTypes TicketType[]
 }
 
 model Session {
@@ -79,6 +85,7 @@ model Session {
   description String?
   startTime   DateTime
   endTime     DateTime
+  location    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,4 +151,55 @@ model Registration {
   @@unique([userId, eventId])
   @@index([eventId])
   @@index([userId])
+}
+model TicketType {
+  id          String   @id @default(uuid())
+  eventId     String
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  quantity    Int
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  orderItems OrderItem[]
+}
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  EXPIRED
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items       OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+model OrderItem {
+  id           String     @id @default(uuid())
+  orderId      String
+  ticketTypeId String
+  quantity     Int
+  unitPrice    Decimal    @db.Decimal(10, 2)
+
+  order        Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ticketType   TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([ticketTypeId])
 }

@@ -59,7 +59,10 @@ export const ModelName = {
   Speaker: 'Speaker',
   SessionSpeaker: 'SessionSpeaker',
   AuthSession: 'AuthSession',
-  Registration: 'Registration'
+  Registration: 'Registration',
+  TicketType: 'TicketType',
+  Order: 'Order',
+  OrderItem: 'OrderItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -118,6 +121,7 @@ export const EventScalarFieldEnum = {
   organizationId: 'organizationId',
   title: 'title',
   description: 'description',
+  location: 'location',
   startDate: 'startDate',
   endDate: 'endDate',
   maxAttendees: 'maxAttendees',
@@ -136,6 +140,7 @@ export const SessionScalarFieldEnum = {
   description: 'description',
   startTime: 'startTime',
   endTime: 'endTime',
+  location: 'location',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -188,6 +193,43 @@ export const RegistrationScalarFieldEnum = {
 } as const
 
 export type RegistrationScalarFieldEnum = (typeof RegistrationScalarFieldEnum)[keyof typeof RegistrationScalarFieldEnum]
+
+
+export const TicketTypeScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TicketTypeScalarFieldEnum = (typeof TicketTypeScalarFieldEnum)[keyof typeof TicketTypeScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  totalAmount: 'totalAmount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  ticketTypeId: 'ticketTypeId',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice'
+} as const
+
+export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
 export const SortOrder = {

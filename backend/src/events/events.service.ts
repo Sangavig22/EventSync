@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -6,10 +7,19 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { DiscoverEventsDto } from './dto/discover-events.dto';
+import { Prisma } from '../generated/prisma/client';
 import {
   isForeignKeyViolation,
   throwPrismaError,
 } from '../common/prisma-error.util';
+
+const SORT_BY_FIELD_MAP: Record<string, 'startDate' | 'createdAt' | 'title'> = {
+  startDate: 'startDate',
+  startTime: 'startDate',
+  createdAt: 'createdAt',
+  title: 'title',
+};
 
 @Injectable()
 export class EventsService {
@@ -42,6 +52,82 @@ export class EventsService {
       throw new NotFoundException(`Event with id ${id} not found`);
     }
     return event;
+  }
+
+  async discover(discoverEventsDto: DiscoverEventsDto) {
+    const page = discoverEventsDto.page ?? 1;
+    const limit = discoverEventsDto.limit ?? 20;
+    const sortField =
+      SORT_BY_FIELD_MAP[discoverEventsDto.sortBy ?? 'startDate'] ?? 'startDate';
+    const sortOrder: Prisma.SortOrder = discoverEventsDto.sortOrder ?? 'asc';
+
+    const from = discoverEventsDto.from
+      ? new Date(discoverEventsDto.from)
+      : undefined;
+    const to = discoverEventsDto.to
+      ? new Date(discoverEventsDto.to)
+      : undefined;
+
+    if (from && to && from.getTime() > to.getTime()) {
+      throw new BadRequestException('from must not be later than to');
+    }
+
+    const where: Prisma.EventWhereInput = { status: 'PUBLISHED' };
+
+    if (discoverEventsDto.search) {
+      where.OR = [
+        { title: { contains: discoverEventsDto.search, mode: 'insensitive' } },
+        {
+          description: {
+            contains: discoverEventsDto.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          location: {
+            contains: discoverEventsDto.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+
+    if (discoverEventsDto.location) {
+      where.location = {
+        contains: discoverEventsDto.location,
+        mode: 'insensitive',
+      };
+    }
+
+    if (from || to) {
+      where.startDate = {
+        ...(from ? { gte: from } : {}),
+        ...(to ? { lte: to } : {}),
+      };
+    }
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.event.findMany({
+        where,
+        orderBy: { [sortField]: sortOrder },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          organization: { select: { id: true, name: true } },
+        },
+      }),
+      this.prisma.event.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async update(id: string, updateEventDto: UpdateEventDto) {

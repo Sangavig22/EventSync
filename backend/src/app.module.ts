@@ -9,6 +9,8 @@ import { UsersModule } from './users/users.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { SpeakersModule } from './speakers/speakers.module';
 import { RegistrationsModule } from './registrations/registrations.module';
+import { TicketTypesModule } from './ticket-types/ticket-types.module';
+import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
@@ -29,6 +31,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     SessionsModule,
     SpeakersModule,
     RegistrationsModule,
+    TicketTypesModule,
+    OrdersModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -8,11 +8,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { DiscoverEventsDto } from './dto/discover-events.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard/jwt-auth.guard';
 import { PermissionGuard } from '../common/guards/permission.guard';
 import { RequirePermissions } from '../common/decorators/require-permissions.decorator';
@@ -26,6 +28,11 @@ export class EventsController {
   @Get()
   findAll() {
     return this.eventsService.findAll();
+  }
+
+  @Get('discover')
+  discover(@Query() query: DiscoverEventsDto) {
+    return this.eventsService.discover(query);
   }
 
   @Get(':id')

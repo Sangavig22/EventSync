@@ -62,3 +62,18 @@ export type AuthSession = Prisma.AuthSessionModel
  * 
  */
 export type Registration = Prisma.RegistrationModel
+/**
+ * Model TicketType
+ * 
+ */
+export type TicketType = Prisma.TicketTypeModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel

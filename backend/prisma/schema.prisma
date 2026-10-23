@@ -170,9 +170,16 @@ model TicketType {
 }
 enum OrderStatus {
   PENDING
+  PROCESSING
   PAID
   CANCELLED
   EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
 }
 
 model Order {
@@ -186,6 +193,7 @@ model Order {
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   items       OrderItem[]
+  payments    Payment[]
 
   @@index([userId])
   @@index([status])
@@ -202,4 +210,43 @@ model OrderItem {
 
   @@index([orderId])
   @@index([ticketTypeId])
+}
+
+model Payment {
+  id                     String        @id @default(uuid())
+  orderId                String
+  idempotencyKey         String
+  status                 PaymentStatus @default(PENDING)
+  amount                 Decimal       @db.Decimal(10, 2)
+  provider               String
+  providerRef            String?
+  checkoutSessionId      String?       @unique
+  checkoutUrl            String?
+  // Set when a verified successful payment could not be applied to its order
+  // (e.g. the order was cancelled/expired before the payment settled). The money
+  // moved, so the event is recorded here for an operator to reconcile/refund.
+  reconciliationRequired Boolean       @default(false)
+  reconciliationReason   String?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  order                  Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, idempotencyKey])
+  @@index([orderId])
+  @@index([status])
+  @@index([providerRef])
+  @@index([reconciliationRequired])
+}
+
+/// Idempotency ledger for provider webhooks. A row is inserted in the same
+/// transaction that applies an event's effects, so an event is only ever marked
+/// processed once its payment/order updates are durably committed. A failed
+/// transaction rolls the row back, letting a provider retry reprocess safely.
+model ProcessedWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+
+  @@index([type])
 }

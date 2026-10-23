@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EventSync Frontend
 
-## Getting Started
+Next.js 16 App Router frontend for EventSync, using React 19, Tailwind CSS 4, and TypeScript.
 
-First, run the development server:
+This is currently a starter interface. It does not call the EventSync API yet and does not define any frontend environment variables. The application lives in `app/` and the entry page is `app/page.tsx`.
+
+See the [repository README](../README.md) for the complete project overview and backend/payment setup.
+
+## Prerequisites
+
+- Node.js 24.x (verified with v24.19.0)
+- npm 11.x (verified with v11.17.0)
+
+The frontend is an independent npm project. Run commands from this directory.
+
+## Install and run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The frontend defaults to port `3000`. If you also run the backend locally, set `PORT=4000` in `backend/.env` to avoid a collision.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+```bash
+npm run dev     # start the development server
+npm run build   # create a production build
+npm run start   # serve the production build
+npm run lint    # run ESLint
+```
 
-To learn more about Next.js, take a look at the following resources:
+There is currently no frontend test script.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API integration status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The backend API is a separate project in `../backend`. When wiring this frontend to it:
 
-## Deploy on Vercel
+- The API does not currently enable CORS in `backend/src/main.ts`, so browser requests from port `3000` to port `4000` will require an explicit CORS configuration or a same-origin proxy.
+- Payment and order endpoints require JWT authentication and, for payment/checkout, an `Idempotency-Key` header.
+- Stripe Checkout redirects use the backend's `STRIPE_SUCCESS_URL` and `STRIPE_CANCEL_URL`; configure those to match routes you implement in this frontend.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Do not add placeholder environment variables or API URLs until the integration code and configuration actually exist.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Troubleshooting
+
+- **Port 3000 already in use**: stop the conflicting process, or run the backend on a different port as described above.
+- **`next dev` recreates the agent-rules block in `AGENTS.md`**: this is expected behavior for this Next.js version. Do not manually remove the managed block to keep the working tree clean; see the note in `AGENTS.md`.
+- **Build or type errors after changing Next.js APIs**: this project uses Next.js 16, which can differ from older documentation. Check the guides under `node_modules/next/dist/docs/` before changing application code.

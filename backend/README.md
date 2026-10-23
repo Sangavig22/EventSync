@@ -1,114 +1,188 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# EventSync Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS 12 REST API for EventSync, using Prisma 7 and PostgreSQL 17.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The backend is an independent npm project. Run all commands in this directory. See the [repository README](../README.md) for the full project overview, payment flow, and shared troubleshooting guide.
 
-## Description
+## Modules
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- `auth`: registration, sign-in, refresh-token sessions, logout, JWT guard
+- `users`: user CRUD and current-user lookup
+- `organizations`: organizations and membership management
+- `events`: event CRUD and public event discovery
+- `sessions`: event sessions and session-speaker links
+- `speakers`: speaker CRUD
+- `registrations`: event registrations and current-user registrations
+- `ticket-types`: ticket definitions per event
+- `orders`: order creation and listing
+- `payments`: mock and Stripe Checkout gateways, payment attempts, Stripe webhooks
+- `prisma`: Prisma service and module
 
-## Project setup
+## Prerequisites
 
-```bash
-$ npm install
-```
+- Node.js 24.x (verified with v24.19.0)
+- npm 11.x (verified with v11.17.0)
+- Docker with Docker Compose for the local PostgreSQL container
+- PostgreSQL 17
+- Stripe CLI only for forwarding real Stripe test-mode webhooks
 
-## Compile and run the project
+## Local setup
+
+### 1. Install dependencies
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### 2. Start PostgreSQL
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d
 ```
 
-## Deployment
+The Compose service is named `postgres` and the container is `eventsync-postgres`. It exposes PostgreSQL on host port `5433`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Local development defaults:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- User: `eventsync`
+- Password: `eventsync_password`
+- Database: `eventsync`
+
+These are development-only credentials. Do not reuse them in production.
+
+### 3. Create the environment file
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Windows PowerShell:
 
-## Observability
+```powershell
+Copy-Item .env.example .env
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+Edit `backend/.env` with local values. Never commit this file.
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+### 4. Apply migrations and generate Prisma
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
 
-## Resources
+The generated client lives in `src/generated/prisma/` and is committed to the repository.
 
-Check out a few resources that may come in handy when working with NestJS:
+### 5. Start the API
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run start:dev
+```
 
-## Support
+With `PORT=4000` in `.env`, the API runs at `http://localhost:4000`. If `PORT` is not set, `src/main.ts` falls back to port `3000`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Other commands:
 
-## Stay in touch
+```bash
+npm run start        # start once
+npm run start:debug  # debug mode with watch
+npm run start:prod   # run compiled output
+npm run build        # compile
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Environment variables
 
-## License
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string read by `prisma.config.ts` |
+| `PORT` | No | API port; defaults to `3000` when unset |
+| `JWT_SECRET` | Yes | JWT signing secret |
+| `STRIPE_SECRET_KEY` | No | Stripe test-mode secret key; omit to use the mock checkout gateway |
+| `STRIPE_CURRENCY` | No | Lowercase ISO 4217 currency; defaults to `usd` |
+| `STRIPE_SUCCESS_URL` | Required with `STRIPE_SECRET_KEY` | Absolute HTTP(S) success redirect URL |
+| `STRIPE_CANCEL_URL` | Required with `STRIPE_SECRET_KEY` | Absolute HTTP(S) cancel redirect URL |
+| `STRIPE_WEBHOOK_SECRET` | Required for webhooks | Stripe webhook signing secret (`whsec_...`) |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Safe example:
+
+```dotenv
+DATABASE_URL="postgresql://eventsync:eventsync_password@localhost:5433/eventsync?schema=public"
+PORT=4000
+JWT_SECRET="replace-with-a-long-random-development-secret"
+
+# Optional Stripe test-mode configuration
+# STRIPE_SECRET_KEY=sk_test_replace_me
+# STRIPE_CURRENCY=usd
+# STRIPE_SUCCESS_URL=http://localhost:3000/checkout/success
+# STRIPE_CANCEL_URL=http://localhost:3000/checkout/cancel
+# STRIPE_WEBHOOK_SECRET=whsec_replace_me
+```
+
+Do not commit `.env` or any real credentials.
+
+## Prisma workflow
+
+The Prisma 7 schema is at `prisma/schema.prisma`. Its datasource has no inline `url`; `prisma.config.ts` loads `DATABASE_URL` through `dotenv/config`.
+
+Common commands:
+
+```bash
+npx prisma migrate deploy                          # apply committed migrations
+npx prisma migrate dev --name describe_change      # create a development migration
+npx prisma generate                                # regenerate the committed client
+npx prisma studio                                  # browse the local database
+```
+
+After changing the schema:
+
+1. Create and review the migration.
+2. Run `npx prisma generate`.
+3. Commit the schema, migration directory, and regenerated `src/generated/prisma/` files together.
+
+Some early migrations add required columns or replace required columns without defaults. They apply cleanly to an empty database but can fail on a database with existing rows. Review migration warnings before applying them to non-empty data.
+
+## Testing and checks
+
+```bash
+npm test          # Jest unit tests
+npm run test:e2e  # Jest e2e tests
+npm run lint      # oxlint
+npm run build     # Nest build
+```
+
+Tests do not require live Stripe credentials and do not send real Stripe requests. The webhook e2e test uses an in-memory Prisma stand-in. Database-backed features still require a correctly configured PostgreSQL instance when exercised outside the test doubles.
+
+## Payments
+
+The API exposes:
+
+- `POST /orders/:orderId/pay` for the synchronous payment path (currently backed by the mock gateway)
+- `POST /orders/:orderId/checkout` for hosted checkout
+- `POST /payments/webhook/stripe` for Stripe webhook delivery
+
+Both pay and checkout require a JWT and an `Idempotency-Key` header.
+
+If `STRIPE_SECRET_KEY` is unset, checkout uses the in-process mock gateway. If it is set, Stripe Checkout is used and the redirect URLs become required. Payment remains pending until a verified webhook confirms it.
+
+The webhook verifies the `Stripe-Signature` header against the raw request body and `STRIPE_WEBHOOK_SECRET`. Event IDs are recorded in `ProcessedWebhookEvent` in the same transaction as the payment/order updates, making duplicate deliveries safe.
+
+To forward Stripe test-mode webhooks locally:
+
+```bash
+stripe listen --forward-to localhost:4000/payments/webhook/stripe
+```
+
+Copy the printed `whsec_...` value into `STRIPE_WEBHOOK_SECRET` and restart the API. Use test-mode keys only.
+
+Payments that cannot be applied to their order are marked `SUCCEEDED` with `reconciliationRequired = true` and a reason. They require manual review and are not refunded automatically. See the [root README](../README.md) for the full payment lifecycle and reconciliation details.
+
+## Troubleshooting
+
+- **Database connection failure**: confirm `docker compose ps` shows `eventsync-postgres` and that `DATABASE_URL` uses host port `5433`.
+- **Prisma cannot find `DATABASE_URL`**: create `backend/.env` from `.env.example`.
+- **Port collision**: the frontend also uses port `3000`; set `PORT=4000` for the API.
+- **Startup fails after adding a Stripe key**: set both `STRIPE_SUCCESS_URL` and `STRIPE_CANCEL_URL` to valid absolute URLs.
+- **Webhook 400**: verify `STRIPE_WEBHOOK_SECRET`, the `stripe-signature` header, and that raw-body capture remains enabled in `src/main.ts`.
+- **Webhook 503**: `STRIPE_WEBHOOK_SECRET` is not configured.
+- **Prisma client out of date**: run `npx prisma generate` after schema changes and commit the generated files.
+- **Observe placeholders**: `src/app.module.ts` contains `YOUR_APP_KEY` and `YOUR_APP_SECRET`; configure or remove them before relying on observability in a deployment.

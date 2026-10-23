@@ -2,6 +2,16 @@ import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrismaModule } from './prisma/prisma.module';
+import { EventsModule } from './events/events.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { UsersModule } from './users/users.module';
+import { SessionsModule } from './sessions/sessions.module';
+import { SpeakersModule } from './speakers/speakers.module';
+import { RegistrationsModule } from './registrations/registrations.module';
+import { TicketTypesModule } from './ticket-types/ticket-types.module';
+import { OrdersModule } from './orders/orders.module';
+import { AuthModule } from './auth/auth.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -14,6 +24,16 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: 'YOUR_APP_SECRET',
       serviceId: 'backend',
     }),
+    PrismaModule,
+    EventsModule,
+    OrganizationsModule,
+    UsersModule,
+    SessionsModule,
+    SpeakersModule,
+    RegistrationsModule,
+    TicketTypesModule,
+    OrdersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

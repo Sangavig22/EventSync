@@ -5,7 +5,7 @@ Monorepo of two **independent** npm projects (no root package.json / workspace t
 ## Repo layout
 
 - `frontend/` — Next.js 16 (App Router, Tailwind v4, TypeScript). Starter app; no API wiring yet.
-- `backend/` — NestJS 12 + Prisma 7 + PostgreSQL 17. Starter app; no modules beyond `AppModule`.
+- `backend/` — NestJS 12 + Prisma 7 + PostgreSQL 17. Modules: auth, users, organizations, events, sessions, speakers, registrations, ticket-types, orders, and payments.
 
 ## Frontend (Next.js 16) gotchas
 
@@ -15,11 +15,11 @@ Monorepo of two **independent** npm projects (no root package.json / workspace t
 ## Backend (NestJS + Prisma 7) gotchas
 
 - Prisma 7 uses `prisma.config.ts` (not package.json config). `DATABASE_URL` is read from `.env` via `dotenv/config`; schema `datasource` block has **no** `url` — that's normal for Prisma 7.
-- Client is generated into `src/generated/prisma/` via the `prisma-client` generator and its output is **committed**. After any `schema.prisma` change, re-run `npx prisma generate` from `backend/`. `schema.prisma` currently has no models and there are no migrations (`prisma/migrations` does not exist yet).
+- Client is generated into `src/generated/prisma/` via the `prisma-client` generator and its output is **committed**. After any `schema.prisma` change, re-run `npx prisma generate` from `backend/`. The schema and 14 migrations (including the five payment migrations) live in `prisma/`; apply them with `npx prisma migrate deploy` and create schema changes with `npx prisma migrate dev`.
 - Lint is `oxlint` (not eslint): `npm run lint` (`oxlint src/ test/`).
 - Tests: `npm run test` (unit, jest), `npm run test:e2e` (jest e2e config).
 - Local Postgres: `docker compose up -d` in `backend/` → `eventsync-postgres` exposed on host port **5433** (credentials `eventsync` / `eventsync_password` / db `eventsync`).
-- `.env` is gitignored and holds `DATABASE_URL` + `PORT`; a fresh clone must create `backend/.env`.
+- `.env` is gitignored and holds `DATABASE_URL`, `PORT`, `JWT_SECRET`, and optional Stripe settings; a fresh clone must create `backend/.env` from `.env.example`.
 - `AppModule` wires `@nestjs/observe` with placeholder `YOUR_APP_KEY` / `YOUR_APP_SECRET` and `main.ts` uses its `ObserveInstrument` — replace/remove before relying on runtime behavior.
 
 ## Git workflow

@@ -30,9 +30,19 @@ export type RegistrationStatus = (typeof RegistrationStatus)[keyof typeof Regist
 
 export const OrderStatus = {
   PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
   PAID: 'PAID',
   CANCELLED: 'CANCELLED',
   EXPIRED: 'EXPIRED'
 } as const
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const PaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]

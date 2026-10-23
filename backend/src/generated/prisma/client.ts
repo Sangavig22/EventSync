@@ -99,3 +99,16 @@ export type Order = Prisma.OrderModel
  * 
  */
 export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model ProcessedWebhookEvent
+ * Idempotency ledger for provider webhooks. A row is inserted in the same
+ * transaction that applies an event's effects, so an event is only ever marked
+ * processed once its payment/order updates are durably committed. A failed
+ * transaction rolls the row back, letting a provider retry reprocess safely.
+ */
+export type ProcessedWebhookEvent = Prisma.ProcessedWebhookEventModel
